@@ -4,7 +4,7 @@ import { FC, useState } from "react";
 import * as web3 from "@solana/web3.js"
 import { Box, Button, FormControl, FormLabel, Input, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Textarea } from "@chakra-ui/react";
 
-const MOVIE_REVIEW_PROGRAM_ID = "CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN"
+const MOVIE_REVIEW_PROGRAM_ID = "7CnMTVkeNeSFUhJ4c6YnAYtCk6xLXTJerU85sytkhtos"
 
 export const Form: FC = () => {
   const [title, setTitle] = useState("");
