@@ -2,11 +2,10 @@ import { Movie } from "@/models/Movie";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { FC, useState } from "react";
 import * as web3 from "@solana/web3.js"
-import { Box, Button, FormControl, FormLabel, Input, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Switch, Textarea } from "@chakra-ui/react";
+import { Box, Button, Center, FormControl, FormLabel, Input, Link, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Switch, Textarea } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCount, setCount } from "@/redux/transactionSlice";
-
-const MOVIE_REVIEW_PROGRAM_ID = "5TtNqKeyHHKocUtSt6zHmkVW9cC1BfCXMJyi2uTTDuuu"
+import { PROGRAM_ID, explorer_url } from "@/constants/web3";
 
 export const Form: FC = () => {
   const [title, setTitle] = useState("");
@@ -16,6 +15,7 @@ export const Form: FC = () => {
   const { publicKey, sendTransaction } = useWallet();
   const [toggle, setToggle] = useState(true)
   const transactionCount = useSelector(getCount);
+  const [trSig, setTrSig] = useState('')
   const dispatch = useDispatch();
 
   const handleTransactionSubmit = async (movie: Movie) => {
@@ -29,7 +29,7 @@ export const Form: FC = () => {
 
     const [pda] = await web3.PublicKey.findProgramAddress(
       [publicKey.toBuffer(), new TextEncoder().encode(movie.title)],
-      new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
+      new web3.PublicKey(PROGRAM_ID)
     )
 
     const instruction = new web3.TransactionInstruction({
@@ -51,14 +51,21 @@ export const Form: FC = () => {
         }
       ],
       data: buffer,
-      programId: new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
+      programId: new web3.PublicKey(PROGRAM_ID)
     })
 
     transaction.add(instruction)
 
     try {
-      let txid = await sendTransaction(transaction, connection)
-      console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+      const txid = await sendTransaction(transaction, connection)
+      console.log(`Transaction submitted: ${explorer_url(txid)}`)
+      setTrSig(txid);
+      const lastBlock = await connection.getLatestBlockhash();
+      await connection.confirmTransaction({
+        blockhash: lastBlock.blockhash,
+        lastValidBlockHeight: lastBlock.lastValidBlockHeight,
+        signature: txid,
+      })
       dispatch(setCount(transactionCount + 1))
     } catch (e) {
       alert(JSON.stringify(e))
@@ -67,6 +74,7 @@ export const Form: FC = () => {
 
   const handleSubmit = (event: any) => {
     event.preventDefault()
+    setTrSig('');
     const movie = new Movie(title, rating, description);
     handleTransactionSubmit(movie)
   }
@@ -74,7 +82,7 @@ export const Form: FC = () => {
   return (
     <Box
       p={4}
-      display={{md: "flex"}}
+      display={{ md: "flex" }}
       maxWidth="32rem"
       borderWidth={1}
       margin={2}
@@ -96,8 +104,8 @@ export const Form: FC = () => {
             Add your review
           </FormLabel>
           <Textarea
-            id = 'review'
-            color = 'gray.400'
+            id='review'
+            color='gray.400'
             onChange={event => setDescription(event.currentTarget.value)}
           />
         </FormControl>
@@ -109,7 +117,7 @@ export const Form: FC = () => {
             onChange={(valueString) => setRating(parseInt(valueString))}
           >
             <NumberInputField id='amount' color='gray.400' />
-            <NumberInputStepper color = "gray.400">
+            <NumberInputStepper color="gray.400">
               <NumberIncrementStepper />
               <NumberDecrementStepper />
             </NumberInputStepper>
@@ -127,6 +135,16 @@ export const Form: FC = () => {
         <Button width="full" mt={4} type="submit">
           Submit Review
         </Button>
+        {
+          trSig !== ''
+            ?
+            <Center color="green.200" mt={2}>
+              <Link href={explorer_url(trSig)} target="_blank">
+                Check your transaction on Explorer
+              </Link>
+            </Center>
+            : null
+        }
       </form>
     </Box>
   )

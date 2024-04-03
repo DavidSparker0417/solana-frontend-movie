@@ -1,14 +1,14 @@
+import { PROGRAM_ID } from "@/constants/web3"
 import { Movie } from "@/models/Movie"
 import * as web3 from "@solana/web3.js"
 import bs58 from "bs58"
 
-const MOVIE_REVIEW_PROGRAM_ID = '5TtNqKeyHHKocUtSt6zHmkVW9cC1BfCXMJyi2uTTDuuu'
 export class MovieCoordinator {
   static accounts: web3.PublicKey[] = []
 
   static async prefetchAccounts(connection: web3.Connection, search: string = '') {
     const accounts = await connection.getProgramAccounts(
-      new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID),
+      new web3.PublicKey(PROGRAM_ID),
       {
         dataSlice: { offset: 2, length: 18 },
         filters: search === '' ? [] : [

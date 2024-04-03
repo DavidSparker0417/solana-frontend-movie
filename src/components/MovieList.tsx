@@ -15,6 +15,7 @@ export const MovieList: FC = () => {
   const transactionCount = useSelector(getCount);
 
   useEffect(() => {
+    console.log(`Fetching page...`)
     MovieCoordinator.fetchPage(
       connection,
       page,
