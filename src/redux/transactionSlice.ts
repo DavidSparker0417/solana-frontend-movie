@@ -20,5 +20,5 @@ export const transactionSlice = createSlice({
 })
 
 export const {setCount} = transactionSlice.actions;
-export const getCount = (state: any) => state.transaction.count
+export const getCount = (state: any) => state?.transaction?.count
 export default transactionSlice.reducer;
