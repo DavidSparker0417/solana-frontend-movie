@@ -4,8 +4,9 @@ import { AppBar } from "@/components/AppBar";
 import { Box, Center, Heading } from "@chakra-ui/react";
 import { Form } from "@/components/Form";
 import { MovieList } from "@/components/MovieList";
+import {wrapper} from "../redux/store"
 
-export default function Home() {
+function Home() {
   return (
     <div className={styles.App}>
       <Head>
@@ -27,3 +28,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default wrapper.withRedux(Home)

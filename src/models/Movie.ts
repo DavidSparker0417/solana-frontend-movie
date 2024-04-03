@@ -32,10 +32,11 @@ export class Movie {
     borsh.str('description'),
   ])
 
-  serialize(): Buffer {
+  serialize(v: number): Buffer {
+    console.log(`[DAVID] variant = ${v}`)
     const buffer = Buffer.alloc(1000)
     this.borshInstructionSchema.encode({
-      ...this, variant: 0
+      ...this, variant: v
     }, buffer)
     return buffer.slice(0, this.borshInstructionSchema.getSpan(buffer))
   }
@@ -43,7 +44,7 @@ export class Movie {
   static deserialize(buffer?: Buffer): Movie | null {
     if (!buffer) return null
     try {
-      const { title, rating, description } = this.borshAccountSchema.decode(buffer)
+      const { rating, title,  description } = this.borshAccountSchema.decode(buffer)
       return new Movie(title, rating, description);
     } catch (error) {
       console.log('Deserialization error:', error)

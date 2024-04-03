@@ -4,12 +4,15 @@ import { Card } from "./Card";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { MovieCoordinator } from "@/coordinators/MovieCoordinators";
 import { Button, Center, HStack, Input, Spacer } from "@chakra-ui/react";
+import { useSelector } from "react-redux";
+import { getCount } from "@/redux/transactionSlice";
 
 export const MovieList: FC = () => {
   const [movies, setMovies] = useState<Movie[]>([])
   const { connection } = useConnection()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
+  const transactionCount = useSelector(getCount);
 
   useEffect(() => {
     MovieCoordinator.fetchPage(
@@ -21,7 +24,7 @@ export const MovieList: FC = () => {
     ).then(movies => {
       setMovies(movies)
     });
-  }, [page, search])
+  }, [page, search, transactionCount])
   return (
     <div>
       <Center>

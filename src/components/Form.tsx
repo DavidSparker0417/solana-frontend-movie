@@ -2,9 +2,11 @@ import { Movie } from "@/models/Movie";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { FC, useState } from "react";
 import * as web3 from "@solana/web3.js"
-import { Box, Button, FormControl, FormLabel, Input, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Textarea } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormLabel, Input, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Switch, Textarea } from "@chakra-ui/react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCount, setCount } from "@/redux/transactionSlice";
 
-const MOVIE_REVIEW_PROGRAM_ID = "7CnMTVkeNeSFUhJ4c6YnAYtCk6xLXTJerU85sytkhtos"
+const MOVIE_REVIEW_PROGRAM_ID = "5TtNqKeyHHKocUtSt6zHmkVW9cC1BfCXMJyi2uTTDuuu"
 
 export const Form: FC = () => {
   const [title, setTitle] = useState("");
@@ -12,6 +14,9 @@ export const Form: FC = () => {
   const [description, setDescription] = useState("")
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const [toggle, setToggle] = useState(true)
+  const transactionCount = useSelector(getCount);
+  const dispatch = useDispatch();
 
   const handleTransactionSubmit = async (movie: Movie) => {
     if (!publicKey) {
@@ -19,7 +24,7 @@ export const Form: FC = () => {
       return
     }
 
-    const buffer = movie.serialize();
+    const buffer = movie.serialize(toggle ? 0 : 1);
     const transaction = new web3.Transaction()
 
     const [pda] = await web3.PublicKey.findProgramAddress(
@@ -54,6 +59,7 @@ export const Form: FC = () => {
     try {
       let txid = await sendTransaction(transaction, connection)
       console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+      dispatch(setCount(transactionCount + 1))
     } catch (e) {
       alert(JSON.stringify(e))
     }
@@ -108,6 +114,15 @@ export const Form: FC = () => {
               <NumberDecrementStepper />
             </NumberInputStepper>
           </NumberInput>
+        </FormControl>
+        <FormControl display="center" alignItems="center">
+          <FormLabel color="gray.100" mt={2}>
+            Update
+          </FormLabel>
+          <Switch
+            id="update"
+            onChange={(event) => setToggle((prevCheck) => !prevCheck)}
+          />
         </FormControl>
         <Button width="full" mt={4} type="submit">
           Submit Review

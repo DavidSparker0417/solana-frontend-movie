@@ -9,6 +9,7 @@ use solana_program::{
   system_instruction,
   sysvar::{rent::Rent, Sysvar},
 };
+
 use std::convert::TryInto;
 pub mod instruction;
 use instruction::MovieInstruction;
