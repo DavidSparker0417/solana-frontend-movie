@@ -7,7 +7,7 @@ pub enum ReviewError {
     #[error("Account not initialized yet")]
     UninitilizedAccount,
     // Error 1
-    #[error("PDA derived does not equal PDA assed in")]
+    #[error("PDA derived does not equal PDA passed in")]
     InvalidPDA,
     // Error 2
     #[error("Iput data exceeds max length")]
