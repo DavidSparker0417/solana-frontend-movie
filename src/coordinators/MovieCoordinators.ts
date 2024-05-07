@@ -7,18 +7,30 @@ export class MovieCoordinator {
   static accounts: web3.PublicKey[] = []
 
   static async prefetchAccounts(connection: web3.Connection, search: string = '') {
+    const offset = 4 + 6 + 1 + 32 + 1 + 4;
     const accounts = await connection.getProgramAccounts(
       new web3.PublicKey(PROGRAM_ID),
       {
         dataSlice: { offset: 2, length: 18 },
-        filters: search === '' ? [] : [
-          {
-            memcmp: {
-              offset: 6,
-              bytes: bs58.encode(Buffer.from(search))
+        filters: search === ''
+          ?
+          [
+            {
+              memcmp: {
+                offset: 4,
+                bytes: bs58.encode(Buffer.from("review")),
+              },
+            },
+          ]
+          : 
+          [
+            {
+              memcmp: {
+                offset: offset,
+                bytes: bs58.encode(Buffer.from(search))
+              }
             }
-          }
-        ]
+          ]
       }
     )
     const temp_accounts = [...accounts]
@@ -44,9 +56,9 @@ export class MovieCoordinator {
     }
     const paginatedPublicKeys = this.accounts.slice(
       (page - 1) * perPage,
-      page*perPage
+      page * perPage
     )
-    if (paginatedPublicKeys.length == 0){
+    if (paginatedPublicKeys.length == 0) {
       return []
     }
     const accounts = await connection.getMultipleAccountsInfo(paginatedPublicKeys)
